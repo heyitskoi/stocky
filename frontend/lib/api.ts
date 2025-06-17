@@ -4,6 +4,7 @@ import type {
   MarkFaultyRequest,
   Department,
   MyEquipmentItem,
+  User,
   UserOption,
   AuditLog,
   AuditLogsResponse,
@@ -268,12 +269,7 @@ const mockAuditLogsData: AuditLog[] = [
 ]
 
 async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-  // For preview/development, return mock data
-  if (endpoint.includes("/stock")) {
-    return mockStockData as T
-  }
-
-  // In production, use real API
+  // Attach auth token if available and call the backend
   const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null
 
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
@@ -293,27 +289,22 @@ async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promi
 }
 
 export const stockApi = {
-  getStock: async (departmentId?: number): Promise<StockItem[]> => {
-    // Return mock data for preview
-    await new Promise((resolve) => setTimeout(resolve, 1000)) // Simulate loading
-    return mockStockData.filter((item) => !departmentId || item.department_id === departmentId)
-  },
+  login: async (credentials: { username: string; password: string }) =>
+    apiRequest<{ token: string; user: User }>("/auth/login", {
+      method: "POST",
+      body: JSON.stringify(credentials),
+    }),
 
-  assignStock: async (data: AssignStockRequest) => {
-    await new Promise((resolve) => setTimeout(resolve, 1000)) // Simulate API call
+  getStock: async (departmentId?: number): Promise<StockItem[]> =>
+    apiRequest<StockItem[]>(
+      `/stock/${departmentId ? `?department_id=${departmentId}` : ""}`,
+    ),
 
-    // Simulate potential errors for testing
-    if (Math.random() < 0.1) {
-      // 10% chance of error for testing
-      throw new ApiError(400, "User is not eligible for this equipment type")
-    }
-
-    return {
-      success: true,
-      message: "Stock item assigned successfully",
-      assignment_id: Math.floor(Math.random() * 1000),
-    }
-  },
+  assignStock: async (data: AssignStockRequest) =>
+    apiRequest("/stock/assign", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
 
   markFaulty: async (data: MarkFaultyRequest) => {
     await new Promise((resolve) => setTimeout(resolve, 500))
@@ -325,14 +316,8 @@ export const stockApi = {
     return { success: true }
   },
 
-  getDepartments: async (): Promise<Department[]> => {
-    return [
-      { id: 1, name: "Warehouse", tenant_id: 1 },
-      { id: 2, name: "IT Department", tenant_id: 1 },
-      { id: 3, name: "Sales Department", tenant_id: 1 },
-      { id: 4, name: "Administration", tenant_id: 1 },
-    ]
-  },
+  getDepartments: async (): Promise<Department[]> =>
+    apiRequest<Department[]>("/departments"),
 
   getMyEquipment: async (): Promise<MyEquipmentItem[]> => {
     // Return mock data for preview
@@ -340,66 +325,19 @@ export const stockApi = {
     return mockEquipmentData
   },
 
-  getUsers: async (): Promise<UserOption[]> => {
-    // Return mock data for preview
-    await new Promise((resolve) => setTimeout(resolve, 800)) // Simulate loading
-    return mockUsersData
-  },
+  getUsers: async (): Promise<UserOption[]> =>
+    apiRequest<UserOption[]>("/users"),
 
   getAuditLogs: async (filters: AuditLogsFilters = {}): Promise<AuditLogsResponse> => {
-    // Simulate loading
-    await new Promise((resolve) => setTimeout(resolve, 1200))
-
-    let filteredLogs = [...mockAuditLogsData]
-
-    // Apply filters
-    if (filters.item_id) {
-      filteredLogs = filteredLogs.filter((log) => log.stock_item_id === filters.item_id)
-    }
-    if (filters.user_id) {
-      filteredLogs = filteredLogs.filter((log) => log.user_id === filters.user_id)
-    }
-    if (filters.department_id) {
-      filteredLogs = filteredLogs.filter((log) => log.department_id === filters.department_id)
-    }
-    if (filters.action) {
-      filteredLogs = filteredLogs.filter((log) => log.action === filters.action)
-    }
-
-    // Sort by timestamp (newest first)
-    filteredLogs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-
-    // Pagination
-    const page = filters.page || 1
-    const perPage = filters.per_page || 50
-    const startIndex = (page - 1) * perPage
-    const endIndex = startIndex + perPage
-    const paginatedLogs = filteredLogs.slice(startIndex, endIndex)
-
-    return {
-      logs: paginatedLogs,
-      total: filteredLogs.length,
-      page,
-      per_page: perPage,
-      total_pages: Math.ceil(filteredLogs.length / perPage),
-    }
+    const params = new URLSearchParams(filters as Record<string, string>).toString()
+    return apiRequest<AuditLogsResponse>(`/logs/${params ? `?${params}` : ""}`)
   },
 
-  returnItem: async (data: { item_id: number; reason: string; condition: string }) => {
-    await new Promise((resolve) => setTimeout(resolve, 1000)) // Simulate API call
-
-    // Simulate potential errors for testing
-    if (Math.random() < 0.1) {
-      // 10% chance of error for testing
-      throw new ApiError(400, "Item cannot be returned at this time")
-    }
-
-    return {
-      success: true,
-      message: "Item returned successfully",
-      return_id: Math.floor(Math.random() * 1000),
-    }
-  },
+  returnItem: async (data: { item_id: number; reason: string; condition: string }) =>
+    apiRequest("/stock/return", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
 
   transferStock: async (data: TransferStockRequest): Promise<TransferStockResponse> => {
     await new Promise((resolve) => setTimeout(resolve, 1000)) // Simulate API call

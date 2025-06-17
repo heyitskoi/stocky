@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { stockApi } from "@/lib/api"
 import type { User } from "@/types/stock"
 
 interface LoginCredentials {
@@ -51,66 +52,16 @@ export function useAuth() {
     setLoading(true)
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      const response = await stockApi.login(credentials)
+      localStorage.setItem("access_token", response.token)
+      localStorage.setItem("user_data", JSON.stringify(response.user))
+      setUser(response.user)
 
-      // Mock authentication logic
-      const mockUsers: User[] = [
-        {
-          id: 1,
-          username: "admin",
-          email: "admin@company.com",
-          roles: ["admin"],
-          department_id: 1,
-          full_name: "System Administrator",
-        },
-        {
-          id: 2,
-          username: "manager",
-          email: "manager@company.com",
-          roles: ["stock_manager"],
-          department_id: 2,
-          full_name: "Stock Manager",
-        },
-        {
-          id: 3,
-          username: "staff",
-          email: "staff@company.com",
-          roles: ["staff"],
-          department_id: 2,
-          full_name: "Staff Member",
-        },
-        {
-          id: 4,
-          username: "john_manager",
-          email: "john.manager@company.com",
-          roles: ["stock_manager", "staff"],
-          department_id: 2,
-          full_name: "John Manager",
-        },
-      ]
-
-      const foundUser = mockUsers.find(
-        (u) => u.username === credentials.username && credentials.password === "password", // Simple mock password
-      )
-
-      if (foundUser) {
-        const token = `mock_token_${foundUser.id}_${Date.now()}`
-        localStorage.setItem("access_token", token)
-        localStorage.setItem("user_data", JSON.stringify(foundUser))
-        setUser(foundUser)
-
-        return {
-          success: true,
-          message: "Login successful",
-          user: foundUser,
-          token,
-        }
-      } else {
-        return {
-          success: false,
-          message: "Invalid username or password",
-        }
+      return {
+        success: true,
+        message: "Login successful",
+        user: response.user,
+        token: response.token,
       }
     } catch (error) {
       return {
