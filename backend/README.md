@@ -6,12 +6,13 @@ This directory contains a simple FastAPI backend used during development.
 
 ```bash
 pip install -r requirements.txt
+alembic upgrade head
 ```
 
 ## Running
 
 ```bash
-uvicorn main:app --reload --port 8000
+uvicorn backend.main:app --reload --port 8000
 ```
 
 The API will be available at `http://localhost:8000`.

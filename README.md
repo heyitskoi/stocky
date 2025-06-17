@@ -7,10 +7,22 @@ This repository now includes a simple [FastAPI](https://fastapi.tiangolo.com/) b
 
 ### Run the API
 
+First ensure PostgreSQL is running and a database named `stocky` exists. You can
+create it with:
+
+```bash
+sudo -u postgres createdb stocky
+sudo -u postgres psql -c "CREATE USER stocky_user WITH ENCRYPTED PASSWORD 'stocky_pass';"
+sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE stocky TO stocky_user;"
+```
+
+Install requirements and run migrations:
+
 ```bash
 cd backend
 pip install -r requirements.txt
-uvicorn main:app --reload --port 8000
+alembic upgrade head
+uvicorn backend.main:app --reload --port 8000
 ```
 
 The frontend looks for the backend at the URL defined by `NEXT_PUBLIC_API_URL` (defaults to `http://localhost:8000`).
