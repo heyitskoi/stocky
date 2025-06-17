@@ -18,6 +18,7 @@ class User(Base):
     email = Column(String, nullable=False)
     department_id = Column(Integer, ForeignKey("departments.id"))
     full_name = Column(String)
+    role = Column(String, default="staff")
     department = relationship("Department", back_populates="users")
 
 class StockItem(Base):

@@ -22,6 +22,7 @@ Install requirements and run migrations:
 cd backend
 pip install -r requirements.txt
 alembic upgrade head
+python ../scripts/seed_initial_data.py  # populate demo data
 uvicorn backend.main:app --reload --port 8000
 ```
 

@@ -15,15 +15,24 @@ def seed_data():
         if not db.query(models.User).first():
             dept1 = models.Department(id=1, name="Warehouse")
             dept2 = models.Department(id=2, name="IT Department")
-            db.add_all([dept1, dept2])
+            dept3 = models.Department(id=3, name="Finance")
+            db.add_all([dept1, dept2, dept3])
             db.add_all([
-                models.User(id=1, username="admin", email="admin@example.com", department_id=1, full_name="Admin User"),
-                models.User(id=2, username="manager", email="manager@example.com", department_id=2, full_name="Stock Manager"),
+                models.User(id=1, username="admin", email="admin@example.com", department_id=1, full_name="Admin User", role="admin"),
+                models.User(id=2, username="manager", email="manager@example.com", department_id=2, full_name="Stock Manager", role="stock_manager"),
+                models.User(id=3, username="alice", email="alice@example.com", department_id=3, full_name="Alice Accountant", role="staff"),
+                models.User(id=4, username="viewer", email="viewer@example.com", department_id=1, full_name="View Only", role="viewer"),
             ])
             db.add_all([
                 models.StockItem(id=1, name="Dell Laptop XPS 13", quantity=5, department_id=1, status="available"),
                 models.StockItem(id=2, name="iPhone 15 Pro", quantity=12, department_id=1, status="available"),
                 models.StockItem(id=3, name="Wireless Mouse", quantity=2, department_id=1, status="available"),
+                models.StockItem(id=4, name="Office Chair", quantity=10, department_id=2, status="available"),
+                models.StockItem(id=5, name="Projector", quantity=1, department_id=3, status="available"),
+            ])
+            db.add_all([
+                models.LogEntry(action="assign", details="{'item':1,'user':2}"),
+                models.LogEntry(action="return", details="{'item':1,'user':2}"),
             ])
             db.commit()
     finally:
