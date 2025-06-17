@@ -7,6 +7,7 @@ class UserBase(BaseModel):
     email: str
     department_id: int
     full_name: Optional[str] = None
+    role: str = "staff"
 
 class UserCreate(UserBase):
     pass
