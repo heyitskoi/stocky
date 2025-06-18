@@ -3,8 +3,10 @@ from sqlalchemy.orm import Session
 from datetime import datetime
 from typing import List
 
-from .database import SessionLocal, engine
-from . import models, schemas, crud
+from database import SessionLocal, engine
+import models
+import schemas
+import crud
 
 models.Base.metadata.create_all(bind=engine)
 

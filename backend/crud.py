@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
-from . import models, schemas
+import models
+import schemas
 from datetime import datetime
 
 # Departments

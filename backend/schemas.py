@@ -15,7 +15,7 @@ class UserCreate(UserBase):
 class User(UserBase):
     id: int
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class DepartmentBase(BaseModel):
     name: str
@@ -23,7 +23,7 @@ class DepartmentBase(BaseModel):
 class Department(DepartmentBase):
     id: int
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class StockItemBase(BaseModel):
     name: str
@@ -37,7 +37,7 @@ class StockItemCreate(StockItemBase):
 class StockItem(StockItemBase):
     id: int
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class LogEntry(BaseModel):
     id: int
@@ -45,7 +45,7 @@ class LogEntry(BaseModel):
     action: str
     details: str
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class LoginRequest(BaseModel):
     username: str
