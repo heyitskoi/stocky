@@ -27,3 +27,12 @@ uvicorn backend.main:app --reload --port 8000
 ```
 
 The frontend looks for the backend at the URL defined by `NEXT_PUBLIC_API_URL` (defaults to `http://localhost:8000`).
+
+### Environment configuration
+
+Copy `.env.example` to `.env` and update the values if needed. It defines the database connection string for the backend and the API URL for the frontend.
+You can also run the helper script below which will prompt for any missing credentials and install dependencies:
+
+```bash
+./scripts/setup.sh
+```
