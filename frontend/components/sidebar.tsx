@@ -178,7 +178,7 @@ export function AppSidebar() {
         <Separator className="mx-4 my-4" />
 
         {/* Role Information */}
-        {user && (
+        {user && Array.isArray(user.roles) && (
           <SidebarGroup>
             <SidebarGroupLabel className="px-4 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">
               Your Roles

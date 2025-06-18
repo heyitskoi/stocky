@@ -29,6 +29,7 @@ export function TopNavigation() {
   }
 
   const getPrimaryRole = (roles: string[]) => {
+    if (!Array.isArray(roles)) return "STAFF";
     if (roles.includes("admin")) return "ADMIN"
     if (roles.includes("stock_manager")) return "MANAGER"
     return "STAFF"
